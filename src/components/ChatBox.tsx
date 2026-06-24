@@ -1,12 +1,21 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from 'react';
-import { db } from '../firebase';
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { Send } from 'lucide-react';
 
-export const ChatBox = ({ ticketId }) => {
-  const [messages, setMessages] = useState([]);
+interface Message {
+  id: string;
+  text: string;
+  sender: string;
+  timestamp: Timestamp;
+}
+
+export const ChatBox = ({ ticketId }: { ticketId: string }) => {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const scrollRef = useRef();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!ticketId) return;
@@ -15,7 +24,7 @@ export const ChatBox = ({ ticketId }) => {
       orderBy("timestamp", "asc")
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMessages(snapshot.docs.map(doc => ({ id: d.id, ...doc.data() })));
+      setMessages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Message)));
     });
     return () => unsubscribe();
   }, [ticketId]);
@@ -24,7 +33,7 @@ export const ChatBox = ({ ticketId }) => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = async (e) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
@@ -39,8 +48,8 @@ export const ChatBox = ({ ticketId }) => {
   return (
     <div className="flex flex-col h-[500px] bg-slate-50 rounded-2xl border border-gray-100">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.sender === 'Admin' ? 'justify-end' : 'justify-start'}`}>
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex ${msg.sender === 'Admin' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[70%] p-3 rounded-2xl text-sm font-medium ${
               msg.sender === 'Admin' ? 'bg-red-500 text-white rounded-tr-none' : 'bg-white text-gray-800 border rounded-tl-none'
             }`}>
