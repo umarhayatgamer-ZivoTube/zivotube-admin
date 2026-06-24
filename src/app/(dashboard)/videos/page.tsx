@@ -142,8 +142,8 @@ export default function VideosPage() {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          ))
+        )}
       </div>
     </div>
   );
