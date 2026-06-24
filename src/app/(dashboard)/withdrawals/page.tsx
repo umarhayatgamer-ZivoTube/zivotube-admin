@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
@@ -14,7 +14,7 @@ export default function WithdrawalsPage() {
   const fetchRequests = async () => {
     setLoading(true);
     const snap = await getDocs(query(collection(db, "withdrawals"), orderBy("timestamp", "desc")));
-    setRequests(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    setRequests(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     setLoading(false);
   };
 
@@ -137,3 +137,4 @@ export default function WithdrawalsPage() {
     </div>
   );
 }
+

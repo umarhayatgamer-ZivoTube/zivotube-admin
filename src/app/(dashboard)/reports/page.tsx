@@ -16,7 +16,7 @@ export default function ReportsPage() {
     setLoading(true);
     try {
       const snap = await getDocs(query(collection(db, "reports"), orderBy("createdAt", "desc")));
-      setReports(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setReports(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     } catch(e) { console.error(e); }
     setLoading(false);
   };
@@ -132,3 +132,4 @@ export default function ReportsPage() {
     </div>
   );
 }
+

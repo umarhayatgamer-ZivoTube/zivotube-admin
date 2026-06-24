@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
@@ -14,7 +14,7 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     setLoading(true);
     const snap = await getDocs(query(collection(db, "users"), orderBy("createdAt", "desc")));
-    setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     setLoading(false);
   };
 
@@ -148,3 +148,4 @@ export default function UsersPage() {
     </div>
   );
 }
+

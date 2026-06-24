@@ -15,7 +15,7 @@ export default function VIPPage() {
     setLoading(true);
     try {
       const snap = await getDocs(query(collection(db, "users"), orderBy("createdAt", "desc")));
-      setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(u => u.isVip));
+      setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)).filter(u => u.isVip));
     } catch(e) { console.error(e); }
     setLoading(false);
   };
@@ -111,3 +111,4 @@ export default function VIPPage() {
     </div>
   );
 }
+

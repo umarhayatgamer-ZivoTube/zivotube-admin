@@ -17,7 +17,7 @@ export default function StorePage() {
     setLoading(true);
     try {
       const snap = await getDocs(query(collection(db, "storeItems"), orderBy("createdAt", "desc")));
-      setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setItems(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     } catch(e) { console.error(e); }
     setLoading(false);
   };
@@ -114,3 +114,4 @@ export default function StorePage() {
     </div>
   );
 }
+

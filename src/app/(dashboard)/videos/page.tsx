@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
@@ -15,7 +15,7 @@ export default function VideosPage() {
     try {
       setLoading(true);
       const snap = await getDocs(query(collection(db, "videos"), orderBy("createdAt", "desc")));
-      setVideos(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setVideos(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     } catch (error) {
       console.error("Error fetching videos:", error);
     } finally {
@@ -149,3 +149,4 @@ export default function VideosPage() {
     </div>
   );
 }
+

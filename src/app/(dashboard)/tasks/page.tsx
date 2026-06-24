@@ -17,7 +17,7 @@ export default function TasksPage() {
     setLoading(true);
     try {
       const snap = await getDocs(collection(db, "tasks"));
-      setTasks(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setTasks(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     } catch(e) { console.error(e); }
     setLoading(false);
   };
@@ -147,3 +147,4 @@ export default function TasksPage() {
     </div>
   );
 }
+

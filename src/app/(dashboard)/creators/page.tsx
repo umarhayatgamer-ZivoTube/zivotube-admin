@@ -16,7 +16,7 @@ export default function CreatorsPage() {
     setLoading(true);
     try {
       const snap = await getDocs(query(collection(db, "users"), orderBy("creatorLevel", "desc")));
-      const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
       setCreators(all.filter(u => (u.creatorLevel || 0) > 0 || u.isCreator));
     } catch(e) { console.error(e); }
     setLoading(false);
@@ -121,3 +121,4 @@ export default function CreatorsPage() {
     </div>
   );
 }
+

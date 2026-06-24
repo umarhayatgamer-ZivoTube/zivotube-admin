@@ -17,7 +17,7 @@ export default function ReferralsPage() {
       setLoading(true);
       try {
         const snap = await getDocs(query(collection(db, "users"), orderBy("referralCount", "desc")));
-        const all = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(u => (u.referralCount || 0) > 0 || u.referredBy);
+        const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as any)).filter(u => (u.referralCount || 0) > 0 || u.referredBy);
         setUsers(all);
         const totalCoins = all.reduce((sum, u) => sum + (u.referralCoinsEarned || 0), 0);
         setStats({ total: all.length, totalCoinsGiven: totalCoins, topReferrer: all[0]?.username || "-" });
@@ -121,3 +121,4 @@ export default function ReferralsPage() {
     </div>
   );
 }
+

@@ -17,7 +17,7 @@ export default function AnnouncementsPage() {
     setLoading(true);
     try {
       const snap = await getDocs(query(collection(db, "announcements"), orderBy("createdAt", "desc")));
-      setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setItems(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     } catch(e) { console.error(e); }
     setLoading(false);
   };
@@ -130,3 +130,4 @@ export default function AnnouncementsPage() {
     </div>
   );
 }
+

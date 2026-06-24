@@ -23,7 +23,7 @@ export default function GiftCodesPage() {
     setLoading(true);
     try {
       const snap = await getDocs(query(collection(db, "giftCodes"), orderBy("createdAt", "desc")));
-      setCodes(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setCodes(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     } catch(e) { console.error(e); }
     setLoading(false);
   };
@@ -164,3 +164,4 @@ export default function GiftCodesPage() {
     </div>
   );
 }
+

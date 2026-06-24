@@ -17,7 +17,7 @@ export default function MarketplacePage() {
     setLoading(true);
     try {
       const snap = await getDocs(query(collection(db, "templates"), orderBy("createdAt", "desc")));
-      setTemplates(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setTemplates(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     } catch(e) { console.error(e); }
     setLoading(false);
   };
@@ -106,3 +106,4 @@ export default function MarketplacePage() {
     </div>
   );
 }
+
