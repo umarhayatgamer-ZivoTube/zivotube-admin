@@ -31,17 +31,36 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    // In a real app, use a service or hook to fetch this
     const fetchStats = async () => {
-        // Mocking for speed in this demo environment
-        setStats({
-            totalUsers: 15420,
-            activeUsers: 890,
-            totalVideos: 42100,
-            pendingVideos: 45,
-            pendingWithdrawals: 12,
-            coinsEconomy: 5400000
-        });
+        try {
+            // Count users and calculate economy
+            const usersSnap = await getDocs(collection(db, "users"));
+            const totalUsers = usersSnap.size;
+            let coinsEconomy = 0;
+            usersSnap.forEach(doc => {
+                const data = doc.data();
+                coinsEconomy += (data.totalCoins || 0);
+            });
+
+            // Count videos
+            const videosSnap = await getDocs(collection(db, "videos"));
+            const totalVideos = videosSnap.size;
+
+            // Count pending withdrawals
+            const withdrawalsSnap = await getDocs(query(collection(db, "withdrawals"), where("status", "==", "Pending")));
+            const pendingWithdrawals = withdrawalsSnap.size;
+
+            setStats({
+                totalUsers,
+                activeUsers: Math.floor(totalUsers * 0.8), // Placeholder for active users
+                totalVideos,
+                pendingVideos: 0, 
+                pendingWithdrawals,
+                coinsEconomy
+            });
+        } catch (error) {
+            console.error("Error fetching stats:", error);
+        }
     };
     fetchStats();
   }, []);
