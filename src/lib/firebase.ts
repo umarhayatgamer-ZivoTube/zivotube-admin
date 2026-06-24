@@ -11,12 +11,17 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+const hasConfig = typeof window !== 'undefined' || (process.env.NEXT_PUBLIC_FIREBASE_API_KEY && process.env.NEXT_PUBLIC_FIREBASE_API_KEY !== 'undefined');
+
+const app = hasConfig 
+  ? (getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)) 
+  : null;
+
+export const db = app ? getFirestore(app) : null as any;
+export const auth = app ? getAuth(app) : null as any;
 
 export const getMessagingInstance = async () => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined' || !app) return null;
     try {
         const { getMessaging, isSupported } = await import("firebase/messaging");
         const supported = await isSupported();
