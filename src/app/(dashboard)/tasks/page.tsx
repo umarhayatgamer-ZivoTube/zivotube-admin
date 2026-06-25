@@ -1,22 +1,23 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { Plus, Trash2, CheckCircle, Clock, Coins, Target, Edit2, X, Check } from "lucide-react";
+import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, serverTimestamp, query, orderBy } from "firebase/firestore";
+import { Plus, Trash2, CheckCircle, Clock, Coins, Target, Edit2, X, Check, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", coinsReward: "", taskType: "watch", targetCount: "1" });
+  const [form, setForm] = useState({ title: "", description: "", coinsReward: "", taskType: "watch_videos", category: "daily", targetCount: "1" });
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const fetchTasks = async () => {
     setLoading(true);
     try {
-      const snap = await getDocs(collection(db, "tasks"));
+      const snap = await getDocs(query(collection(db, "tasks"), orderBy("createdAt", "desc")));
       setTasks(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
     } catch(e) { console.error(e); }
     setLoading(false);
@@ -28,20 +29,53 @@ export default function TasksPage() {
     if (!form.title || !form.coinsReward) return;
     setSaving(true);
     try {
-      await addDoc(collection(db, "tasks"), {
-        title: form.title,
-        description: form.description,
-        coinsReward: Number(form.coinsReward),
-        taskType: form.taskType,
-        targetCount: Number(form.targetCount),
-        isActive: true,
-        createdAt: serverTimestamp(),
-      });
-      setForm({ title: "", description: "", coinsReward: "", taskType: "watch", targetCount: "1" });
+      if (editingId) {
+        await updateDoc(doc(db, "tasks", editingId), {
+            title: form.title,
+            description: form.description,
+            coinsReward: Number(form.coinsReward),
+            taskType: form.taskType,
+            category: form.category,
+            targetCount: Number(form.targetCount),
+            updatedAt: serverTimestamp(),
+        });
+      } else {
+        await addDoc(collection(db, "tasks"), {
+            title: form.title,
+            description: form.description,
+            coinsReward: Number(form.coinsReward),
+            taskType: form.taskType,
+            category: form.category,
+            targetCount: Number(form.targetCount),
+            isActive: true,
+            createdAt: serverTimestamp(),
+        });
+      }
+      setForm({ title: "", description: "", coinsReward: "", taskType: "watch_videos", category: "daily", targetCount: "1" });
       setShowForm(false);
+      setEditingId(null);
       fetchTasks();
     } catch(e) { console.error(e); }
     setSaving(false);
+  };
+
+  const startEdit = (task: any) => {
+      setForm({
+          title: task.title,
+          description: task.description || "",
+          coinsReward: task.coinsReward?.toString() || "",
+          taskType: task.taskType || "watch_videos",
+          category: task.category || "daily",
+          targetCount: task.targetCount?.toString() || "1"
+      });
+      setEditingId(task.id);
+      setShowForm(true);
+  };
+
+  const handleCancel = () => {
+      setForm({ title: "", description: "", coinsReward: "", taskType: "watch_videos", category: "daily", targetCount: "1" });
+      setShowForm(false);
+      setEditingId(null);
   };
 
   const handleDelete = async (id: string) => {
@@ -57,88 +91,159 @@ export default function TasksPage() {
   };
 
   const taskTypeColors: Record<string, string> = {
-    watch: "bg-blue-100 text-blue-700",
-    upload: "bg-purple-100 text-purple-700",
-    referral: "bg-green-100 text-green-700",
-    daily: "bg-amber-100 text-amber-700",
+    watch_videos: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    like_videos: "bg-red-500/10 text-red-500 border-red-500/20",
+    comment_videos: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+    share_videos: "bg-green-500/10 text-green-500 border-green-500/20",
+    follow_creator: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+    upload_video: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
+    youtube_subscribe: "bg-red-500/10 text-red-500 border-red-500/20",
+    tiktok_follow: "bg-slate-500/10 text-slate-400 border-slate-500/20",
+    instagram_follow: "bg-pink-500/10 text-pink-500 border-pink-500/20",
+    telegram_join: "bg-sky-500/10 text-sky-500 border-sky-500/20",
+    whatsapp_join: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    website_visit: "bg-teal-500/10 text-teal-500 border-teal-500/20",
+    app_rating: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Task Manager</h1>
-          <p className="text-slate-500 text-sm font-medium mt-1">Create and manage user engagement tasks</p>
+          <h1 className="text-2xl font-black text-white tracking-tighter uppercase">Platform <span className="text-[#FF2D2D]">Task Registry</span></h1>
+          <p className="text-slate-500 text-[8px] font-black uppercase tracking-[0.3em] mt-1">Configure user engagement missions and objective logic</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-red-700 transition-all shadow-lg shadow-red-900/20"
+          className="premium-button !px-6 !py-2.5 flex items-center justify-center gap-2 !text-[9px]"
         >
-          <Plus size={18} /> Add Task
+          <Plus size={16} /> New Mission
         </button>
       </div>
 
       {showForm && (
-        <div className="admin-card border-2 border-red-200 bg-red-50/30">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-black text-slate-900">New Task</h3>
-            <button onClick={() => setShowForm(false)} className="p-1 text-slate-400 hover:text-slate-600"><X size={18}/></button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="Task title *" className="px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white" />
-            <input value={form.coinsReward} onChange={e => setForm({...form, coinsReward: e.target.value})} type="number" placeholder="Coins reward *" className="px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white" />
-            <input value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Description" className="px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white md:col-span-2" />
-            <select value={form.taskType} onChange={e => setForm({...form, taskType: e.target.value})} className="px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white">
-              <option value="watch">Watch Videos</option>
-              <option value="upload">Upload Videos</option>
-              <option value="referral">Referral</option>
-              <option value="daily">Daily Login</option>
-            </select>
-            <input value={form.targetCount} onChange={e => setForm({...form, targetCount: e.target.value})} type="number" placeholder="Target count" className="px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white" />
-          </div>
-          <div className="flex gap-3 mt-4">
-            <button onClick={handleAdd} disabled={saving} className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-red-600 transition-all disabled:opacity-50">
-              <Check size={16}/> {saving ? "Saving..." : "Create Task"}
+        <div className="bg-[#121212] rounded-[32px] border border-[#242424] p-8 shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col">
+              <h3 className="font-black text-white uppercase tracking-tight text-lg">{editingId ? "Update Registry Entry" : "Initialize New Mission"}</h3>
+              <p className="text-[8px] font-bold text-[#FF2D2D] uppercase tracking-widest mt-0.5">Parameter Configuration</p>
+            </div>
+            <button onClick={handleCancel} className="p-2 text-slate-500 hover:text-white bg-[#090909] rounded-xl border border-[#242424] transition-all">
+                <X size={18}/>
             </button>
-            <button onClick={() => setShowForm(false)} className="px-6 py-3 rounded-xl text-sm font-black text-slate-500 border border-slate-200 hover:bg-slate-50 transition-all">Cancel</button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Mission Identifier</label>
+                <input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Watch 10 Videos" className="w-full px-4 py-3 bg-[#090909] border border-[#242424] rounded-xl text-sm font-bold text-white outline-none focus:border-[#FF2D2D] transition-all" />
+            </div>
+            <div className="space-y-2">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Yield Reward (Coins)</label>
+                <input value={form.coinsReward} onChange={e => setForm({...form, coinsReward: e.target.value})} type="number" placeholder="1000" className="w-full px-4 py-3 bg-[#090909] border border-[#242424] rounded-xl text-sm font-bold text-white outline-none focus:border-[#FF2D2D] transition-all" />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Operational Description</label>
+                <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Specify mission details..." className="w-full px-4 py-3 bg-[#090909] border border-[#242424] rounded-xl text-sm font-bold text-white outline-none focus:border-[#FF2D2D] transition-all h-24 resize-none" />
+            </div>
+            <div className="space-y-2">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Logic Protocol Type</label>
+                <select value={form.taskType} onChange={e => setForm({...form, taskType: e.target.value})} className="w-full px-4 py-3 bg-[#090909] border border-[#242424] rounded-xl text-sm font-bold text-white outline-none focus:border-[#FF2D2D] transition-all appearance-none cursor-pointer">
+                    <option value="watch_videos">Watch Videos</option>
+                    <option value="like_videos">Like Videos</option>
+                    <option value="comment_videos">Comment Videos</option>
+                    <option value="share_videos">Share Videos</option>
+                    <option value="follow_creator">Follow Creator</option>
+                    <option value="upload_video">Upload Video</option>
+                    <option value="youtube_subscribe">YouTube Subscribe</option>
+                    <option value="tiktok_follow">TikTok Follow</option>
+                    <option value="instagram_follow">Instagram Follow</option>
+                    <option value="telegram_join">Telegram Join</option>
+                    <option value="whatsapp_join">WhatsApp Channel Join</option>
+                    <option value="website_visit">Website Visit</option>
+                    <option value="app_rating">App Rating Prompt</option>
+                </select>
+            </div>
+            <div className="space-y-2">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Cycle Category</label>
+                <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full px-4 py-3 bg-[#090909] border border-[#242424] rounded-xl text-sm font-bold text-white outline-none focus:border-[#FF2D2D] transition-all appearance-none cursor-pointer">
+                    <option value="daily">Daily Mission</option>
+                    <option value="weekly">Weekly Objective</option>
+                    <option value="social">Social Connection</option>
+                    <option value="onetime">One-time Milestone</option>
+                </select>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Iterations (Count)</label>
+                <input value={form.targetCount} onChange={e => setForm({...form, targetCount: e.target.value})} type="number" placeholder="10" className="w-full px-4 py-3 bg-[#090909] border border-[#242424] rounded-xl text-sm font-bold text-white outline-none focus:border-[#FF2D2D] transition-all" />
+            </div>
+          </div>
+          <div className="flex gap-4 mt-8">
+            <button onClick={handleAdd} disabled={saving} className="premium-button !px-8 !py-3 flex items-center justify-center gap-2 !text-[10px] min-w-[160px]">
+              {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><Check size={18}/> {editingId ? "Commit Update" : "Initialize Mission"}</>}
+            </button>
+            <button onClick={handleCancel} className="px-8 py-3 bg-[#090909] border border-[#242424] text-slate-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Cancel</button>
           </div>
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {loading ? (
-          Array(6).fill(0).map((_, i) => <div key={i} className="h-48 bg-slate-100 rounded-3xl animate-pulse" />)
+          Array(6).fill(0).map((_, i) => <div key={i} className="h-64 bg-[#121212] border border-[#242424] rounded-[32px] animate-pulse" />)
         ) : tasks.length === 0 ? (
-          <div className="col-span-3 admin-card border-dashed border-2 py-20 flex flex-col items-center">
-            <Target className="text-slate-300 mb-4" size={40} />
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No tasks created yet</p>
+          <div className="col-span-full bg-[#121212] rounded-[40px] border-2 border-dashed border-[#242424] py-32 flex flex-col items-center justify-center text-center">
+            <div className="w-20 h-20 bg-[#090909] rounded-3xl flex items-center justify-center mb-6 border border-[#242424]">
+                <Target className="text-slate-700" size={40} />
+            </div>
+            <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-xs">Registry Empty</p>
+            <p className="text-slate-600 text-[10px] font-bold uppercase mt-2">Initialize your first mission objective</p>
           </div>
         ) : tasks.map(task => (
-          <div key={task.id} className="admin-card group hover:border-slate-300 transition-all">
-            <div className="flex items-start justify-between mb-4">
-              <span className={cn("px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider", taskTypeColors[task.taskType] || "bg-slate-100 text-slate-600")}>
-                {task.taskType}
+          <div key={task.id} className="bg-[#121212] rounded-[32px] border border-[#242424] p-6 group hover:border-[#FF2D2D]/30 transition-all duration-500 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#FF2D2D]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+            <div className="flex items-start justify-between mb-6 relative z-10">
+              <span className={cn(
+                  "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border",
+                  taskTypeColors[task.taskType] || "bg-slate-500/10 text-slate-400 border-slate-500/20"
+              )}>
+                {task.taskType.replace('_', ' ')}
               </span>
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleToggle(task.id, task.isActive)} className={cn("p-1.5 rounded-lg transition-all", task.isActive ? "text-green-600 bg-green-50 hover:bg-green-100" : "text-slate-400 bg-slate-50 hover:bg-slate-100")} title={task.isActive ? "Deactivate" : "Activate"}>
+              <div className="flex gap-2">
+                <button onClick={() => startEdit(task)} className="w-8 h-8 flex items-center justify-center bg-[#090909] border border-[#242424] text-slate-500 hover:text-blue-500 hover:border-blue-500/50 rounded-xl transition-all" title="Edit">
+                  <Edit2 size={14}/>
+                </button>
+                <button onClick={() => handleToggle(task.id, task.isActive)} className={cn(
+                    "w-8 h-8 flex items-center justify-center border rounded-xl transition-all",
+                    task.isActive
+                        ? "bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20"
+                        : "bg-[#090909] text-slate-600 border-[#242424] hover:text-white"
+                )} title={task.isActive ? "Deactivate" : "Activate"}>
                   <CheckCircle size={14}/>
                 </button>
-                <button onClick={() => handleDelete(task.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                <button onClick={() => handleDelete(task.id)} className="w-8 h-8 flex items-center justify-center bg-[#090909] border border-[#242424] text-slate-500 hover:text-red-500 hover:border-red-500/50 rounded-xl transition-all">
                   <Trash2 size={14}/>
                 </button>
               </div>
             </div>
-            <h3 className="font-black text-slate-900 mb-1 leading-tight">{task.title}</h3>
-            <p className="text-xs text-slate-500 mb-4 line-clamp-2">{task.description || "No description"}</p>
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-              <div className="flex items-center gap-1.5">
-                <Coins size={14} className="text-amber-500" />
-                <span className="text-sm font-black text-slate-800">{task.coinsReward?.toLocaleString()}</span>
-                <span className="text-[10px] text-slate-400 uppercase">coins</span>
+
+            <div className="relative z-10">
+                <h3 className="font-black text-white text-lg mb-2 leading-tight group-hover:text-[#FF2D2D] transition-colors">{task.title}</h3>
+                <p className="text-[10px] font-bold text-slate-500 mb-6 line-clamp-2 uppercase tracking-wide leading-relaxed">{task.description || "No Registry Description Available"}</p>
+            </div>
+
+            <div className="flex items-center justify-between pt-5 border-t border-[#242424] relative z-10">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-amber-500/10 rounded-lg flex items-center justify-center border border-amber-500/20">
+                    <Coins size={14} className="text-amber-500" />
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-xs font-black text-white leading-none">{task.coinsReward?.toLocaleString()}</span>
+                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest mt-0.5">Yield</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Target size={12} className="text-slate-400"/>
-                <span className="text-xs text-slate-500">{task.targetCount || 1}x target</span>
+              <div className="px-3 py-1 bg-[#090909] border border-[#242424] rounded-lg">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{task.targetCount || 1}x Target</span>
               </div>
             </div>
           </div>
@@ -147,4 +252,3 @@ export default function TasksPage() {
     </div>
   );
 }
-

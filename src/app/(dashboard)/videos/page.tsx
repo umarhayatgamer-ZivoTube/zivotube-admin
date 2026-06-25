@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
-import { Trash2, Eye, ExternalLink, Clock, Star } from "lucide-react";
+import { Trash2, Eye, ExternalLink, Clock, Star, ShieldCheck, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function VideosPage() {
@@ -55,29 +55,30 @@ export default function VideosPage() {
 
   if (loading) {
     return (
-      <div className="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="aspect-[9/16] bg-slate-100 rounded-3xl animate-pulse" />
+      <div className="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-pulse">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={i} className="aspect-[9/16] bg-[#121212] rounded-[32px] border border-[#242424]" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 p-4">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-24">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Content Moderation</h1>
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-widest mt-1">Review uploads</p>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Content <span className="text-[#FF2D2D]">Moderation</span></h1>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Quality Assurance & Community Safety Node</p>
         </div>
-        <div className="bg-white p-1 rounded-xl border border-slate-200 flex items-center shadow-sm">
+
+        <div className="bg-[#121212] p-1.5 rounded-2xl border border-[#242424] flex items-center shadow-2xl">
            {['Pending', 'Approved', 'All'].map((f) => (
              <button
                key={f}
                onClick={() => setFilter(f)}
                className={cn(
-                 "px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
-                 filter === f ? "bg-red-500 text-white shadow-md" : "text-slate-400"
+                 "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                 filter === f ? "bg-[#FF2D2D] text-white shadow-lg shadow-red-900/40" : "text-slate-500 hover:text-slate-300"
                )}
              >
                {f}
@@ -86,57 +87,63 @@ export default function VideosPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
         {filtered.length === 0 ? (
-          <div className="col-span-full py-32 text-center">
-             <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No videos found</p>
+          <div className="col-span-full py-40 text-center border-2 border-dashed border-[#242424] rounded-[40px]">
+             <div className="w-16 h-16 bg-[#121212] rounded-2xl flex items-center justify-center mx-auto mb-6 text-slate-700 border border-[#242424]">
+                <PlayCircle size={32} />
+             </div>
+             <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-xs">Clearance Signal: No content awaiting review</p>
           </div>
         ) : (
           filtered.map((video) => (
-            <div key={video.id} className="group bg-white rounded-3xl overflow-hidden border border-slate-200/60 shadow-sm flex flex-col">
-              <div className="aspect-[9/16] bg-slate-950 relative">
+            <div key={video.id} className="group bg-[#121212] rounded-[32px] overflow-hidden border border-[#242424] hover:border-[#FF2D2D]/30 shadow-2xl transition-all duration-500 flex flex-col">
+              <div className="aspect-[9/16] bg-black relative overflow-hidden">
                 {video.thumbnailUrl && (
-                  <img src={video.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                  <img src={video.thumbnailUrl} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 )}
 
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <a href={video.videoUrl} target="_blank" rel="noreferrer" className="p-3 bg-white rounded-full text-black">
-                        <ExternalLink size={20} />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <a href={video.videoUrl} target="_blank" rel="noreferrer" className="p-4 bg-white rounded-full text-black hover:scale-110 transition-transform shadow-xl">
+                        <ExternalLink size={24} />
                     </a>
                 </div>
 
-                <div className="absolute top-4 left-4">
+                <div className="absolute top-5 left-5">
                    <span className={cn(
-                     "px-2 py-1 rounded text-[10px] font-bold uppercase",
-                     video.isApproved ? "bg-green-500 text-white" : "bg-yellow-400 text-black"
+                     "px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest backdrop-blur-md shadow-lg",
+                     video.isApproved ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                    )}>
-                    {video.isApproved ? 'Live' : 'New'}
+                    {video.isApproved ? 'Node: Live' : 'Node: Review'}
                   </span>
                 </div>
               </div>
 
-              <div className="p-4 flex-1 flex flex-col justify-between">
+              <div className="p-6 flex-1 flex flex-col justify-between">
                 <div>
-                    <h4 className="font-bold text-slate-900 line-clamp-1">@{video.creatorUsername || 'User'}</h4>
-                    <p className="text-xs text-slate-500 mt-1 line-clamp-2">{video.caption}</p>
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 rounded-full bg-[#FF2D2D]" />
+                        <h4 className="font-black text-white text-sm tracking-tight truncate">@{video.creatorUsername || 'User'}</h4>
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium line-clamp-2 leading-relaxed">{video.caption}</p>
                 </div>
 
-                <div className="mt-4 flex items-center gap-2">
+                <div className="mt-6 flex items-center gap-3">
                   {!video.isApproved ? (
                     <button
                       onClick={() => handleApprove(video.id)}
-                      className="flex-1 bg-slate-900 text-white py-2 rounded-xl text-[10px] font-bold uppercase"
+                      className="flex-1 bg-white text-black py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#FF2D2D] hover:text-white transition-all shadow-lg"
                     >
-                      Approve
+                      Authorize
                     </button>
                   ) : (
-                    <div className="flex-1 bg-green-50 text-green-600 py-2 rounded-xl text-[10px] font-bold uppercase text-center">
-                        Approved
+                    <div className="flex-1 bg-emerald-500/10 text-emerald-500 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center border border-emerald-500/20">
+                        Operational
                     </div>
                   )}
                   <button
                     onClick={() => handleDelete(video.id)}
-                    className="p-2 bg-slate-100 text-slate-400 rounded-xl hover:text-red-500"
+                    className="p-3 bg-[#090909] text-slate-600 rounded-2xl border border-[#242424] hover:text-[#FF2D2D] hover:border-[#FF2D2D]/50 transition-all"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -149,4 +156,3 @@ export default function VideosPage() {
     </div>
   );
 }
-

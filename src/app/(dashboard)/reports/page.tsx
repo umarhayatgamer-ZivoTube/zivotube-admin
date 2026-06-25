@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
-import { MessageSquare, Search, AlertTriangle, CheckCircle, Trash2, Eye } from "lucide-react";
+import { MessageSquare, Search, AlertTriangle, CheckCircle, Trash2, Eye, ShieldAlert, Filter, XCircle } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 
 export default function ReportsPage() {
@@ -40,96 +40,116 @@ export default function ReportsPage() {
   });
 
   const reasonColors: Record<string, string> = {
-    spam: "bg-orange-100 text-orange-700",
-    inappropriate: "bg-red-100 text-red-700",
-    harassment: "bg-pink-100 text-pink-700",
-    misinformation: "bg-yellow-100 text-yellow-700",
+    spam: "bg-orange-500/10 text-orange-400 border-orange-500/20",
+    inappropriate: "bg-red-500/10 text-red-400 border-red-500/20",
+    harassment: "bg-pink-500/10 text-pink-400 border-pink-500/20",
+    misinformation: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-24">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Content Reports</h1>
-          <p className="text-slate-500 text-sm font-medium mt-1">Review and action user-submitted reports</p>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Incident <span className="text-[#FF2D2D]">Reports</span></h1>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Community Trust & Content Integrity Enforcement</p>
         </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16}/>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search reports..." className="pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 w-64 transition-all"/>
+        <div className="flex items-center gap-4">
+            <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#FF2D2D] transition-colors" size={18} />
+                <input
+                    type="text"
+                    placeholder="Search report hash..."
+                    className="pl-12 pr-6 py-4 bg-[#121212] border border-[#242424] rounded-2xl outline-none focus:border-[#FF2D2D] w-full sm:w-80 text-sm font-bold text-white transition-all shadow-2xl"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            </div>
         </div>
       </div>
 
-      <div className="bg-white p-1.5 rounded-2xl border border-slate-200 flex items-center shadow-sm w-fit">
+      <div className="bg-[#121212] p-1.5 rounded-[20px] border border-[#242424] flex items-center shadow-2xl w-fit">
         {["pending","resolved","dismissed","all"].map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)} className={cn("px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === tab ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:text-slate-600 hover:bg-slate-50")}>
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={cn(
+                "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                activeTab === tab ? "bg-[#FF2D2D] text-white shadow-lg shadow-red-900/40" : "text-slate-500 hover:text-slate-300"
+            )}
+          >
             {tab}
           </button>
         ))}
       </div>
 
-      <div className="admin-card !p-0 overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-slate-50/50 border-b border-slate-100">
-            <tr>
-              <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Type / Reason</th>
-              <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reported Content</th>
-              <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reporter</th>
-              <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-              <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {loading ? (
-              Array(5).fill(0).map((_, i) => <tr key={i}><td colSpan={5} className="p-8 animate-pulse bg-slate-50/30"></td></tr>)
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={5} className="p-20 text-center">
-                <MessageSquare className="mx-auto text-slate-300 mb-3" size={32}/>
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No reports found</p>
-              </td></tr>
-            ) : filtered.map(report => (
-              <tr key={report.id} className="hover:bg-slate-50/50 transition-colors group">
-                <td className="p-4">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle size={14} className="text-orange-500"/>
-                    <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-black uppercase", reasonColors[report.reason] || "bg-slate-100 text-slate-600")}>
-                      {report.reason || "Other"}
-                    </span>
-                  </div>
-                </td>
-                <td className="p-4">
-                  <div>
-                    <p className="text-xs font-bold text-slate-700 capitalize">{report.contentType || "Video"}</p>
-                    <p className="text-[10px] text-slate-400 font-mono">{report.reportedId?.substring(0,16)}...</p>
-                  </div>
-                </td>
-                <td className="p-4 text-[10px] text-slate-400 font-mono">{report.reporterId?.substring(0,12)}...</td>
-                <td className="p-4">
-                  <span className={cn("px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider",
-                    report.status === "resolved" ? "bg-green-50 text-green-600" :
-                    report.status === "dismissed" ? "bg-slate-100 text-slate-500" :
-                    "bg-amber-50 text-amber-700"
-                  )}>
-                    {report.status || "Pending"}
-                  </span>
-                </td>
-                <td className="p-4 text-right">
-                  {(!report.status || report.status === "pending") && (
-                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => handleResolve(report.id)} className="p-2 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all" title="Resolve">
-                        <CheckCircle size={15}/>
-                      </button>
-                      <button onClick={() => handleDismiss(report.id)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all" title="Dismiss">
-                        <Trash2 size={15}/>
-                      </button>
-                    </div>
-                  )}
-                </td>
+      <div className="admin-card !p-0 overflow-hidden border-[#242424] shadow-2xl">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-[#090909]/50 border-b border-[#242424]">
+              <tr>
+                <th className="p-6 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Signal Reason</th>
+                <th className="p-6 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Target Node</th>
+                <th className="p-6 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Reporter ID</th>
+                <th className="p-6 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] text-center">Status</th>
+                <th className="p-6 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] text-right">Operations</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-[#242424]">
+              {loading ? (
+                Array(5).fill(0).map((_, i) => <tr key={i}><td colSpan={5} className="p-10 animate-pulse bg-[#121212]/50"></td></tr>)
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan={5} className="p-32 text-center">
+                  <ShieldAlert className="mx-auto text-slate-800 mb-6" size={64}/>
+                  <p className="text-slate-700 font-black uppercase tracking-[0.3em] text-[10px]">Zero Interference: No active incidents reported</p>
+                </td></tr>
+              ) : (
+                filtered.map(report => (
+                  <tr key={report.id} className="hover:bg-white/[0.01] transition-colors group">
+                    <td className="p-6">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-red-500/10 rounded-xl text-red-500 border border-red-500/20">
+                            <AlertTriangle size={16}/>
+                        </div>
+                        <span className={cn("px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border", reasonColors[report.reason] || "bg-slate-800 text-slate-400 border-slate-700")}>
+                          {report.reason || "General Violation"}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-6">
+                      <div className="flex flex-col">
+                        <p className="text-xs font-black text-white tracking-tight uppercase">{report.contentType || "Video Unit"}</p>
+                        <p className="text-[10px] text-slate-600 font-mono font-bold mt-1 tracking-tighter">{report.reportedId}</p>
+                      </div>
+                    </td>
+                    <td className="p-6 text-[10px] text-slate-500 font-mono font-bold tracking-tight">{report.reporterId}</td>
+                    <td className="p-6 text-center">
+                      <span className={cn("px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border",
+                        report.status === "resolved" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                        report.status === "dismissed" ? "bg-slate-800 text-slate-500 border-slate-700" :
+                        "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                      )}>
+                        {report.status || "Analyzing"}
+                      </span>
+                    </td>
+                    <td className="p-6 text-right">
+                      {(!report.status || report.status === "pending") && (
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                          <button onClick={() => handleResolve(report.id)} className="p-3 bg-[#090909] text-slate-500 hover:text-emerald-500 border border-[#242424] rounded-xl transition-all" title="Resolve Protocol">
+                            <CheckCircle size={16}/>
+                          </button>
+                          <button onClick={() => handleDismiss(report.id)} className="p-3 bg-[#090909] text-slate-500 hover:text-red-500 border border-[#242424] rounded-xl transition-all" title="Dismiss Signal">
+                            <Trash2 size={16}/>
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 }
-

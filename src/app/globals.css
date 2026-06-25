@@ -3,34 +3,62 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 0 72% 51%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 0 72% 51%;
-  --radius: 0.75rem;
+  --background: #090909;
+  --foreground: #FFFFFF;
+  --card: #121212;
+  --card-foreground: #FFFFFF;
+  --popover: #121212;
+  --popover-foreground: #FFFFFF;
+  --primary: #FF2D2D;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FF5B5B;
+  --secondary-foreground: #FFFFFF;
+  --muted: #1A1A1A;
+  --muted-foreground: #A0A0A0;
+  --accent: #FF2D2D;
+  --accent-foreground: #FFFFFF;
+  --destructive: #FF2D2D;
+  --destructive-foreground: #FFFFFF;
+  --border: #242424;
+  --input: #1A1A1A;
+  --ring: #FF2D2D;
+  --radius: 1.5rem;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900;
+  @apply bg-[#090909] text-white selection:bg-[#FF2D2D]/30;
+  font-feature-settings: "cv11", "ss01";
 }
 
 @layer components {
   .admin-card {
-    @apply bg-white rounded-2xl shadow-sm border border-slate-100 p-6;
+    @apply bg-[#121212] rounded-[24px] border border-[#242424] p-6 shadow-xl shadow-black/50 transition-all duration-300;
   }
+
+  .premium-gradient {
+    @apply bg-gradient-to-r from-[#FF2D2D] to-[#FF5B5B];
+  }
+
+  .premium-button {
+    @apply premium-gradient px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-red-600/20 disabled:opacity-50;
+  }
+
+  .status-badge {
+    @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090909;
+}
+::-webkit-scrollbar-thumb {
+  background: #242424;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF2D2D;
 }

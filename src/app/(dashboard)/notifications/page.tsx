@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, orderBy, query } from "firebase/firestore";
-import { Bell, Plus, Trash2, X, Check, Send } from "lucide-react";
+import { Bell, Plus, Trash2, X, Check, Send, ShieldAlert, Target, Zap } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 
 export default function NotificationsPage() {
@@ -41,87 +41,118 @@ export default function NotificationsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Delete this notification?")) {
+    if (confirm("Execute deletion protocol for this notification node?")) {
       await deleteDoc(doc(db, "notifications", id));
       fetchItems();
     }
   };
 
   const typeColor: Record<string, string> = {
-    info: "bg-blue-100 text-blue-700",
-    success: "bg-green-100 text-green-700",
-    warning: "bg-amber-100 text-amber-700",
-    promo: "bg-purple-100 text-purple-700",
+    info: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    success: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    warning: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    promo: "bg-purple-500/10 text-purple-400 border-purple-500/20",
   };
   const typeDot: Record<string, string> = {
-    info: "bg-blue-500", success: "bg-green-500", warning: "bg-amber-500", promo: "bg-purple-500",
+    info: "bg-blue-500", success: "bg-emerald-500", warning: "bg-amber-500", promo: "bg-purple-500",
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-24">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Push Notifications</h1>
-          <p className="text-slate-500 text-sm font-medium mt-1">Send targeted notifications to users</p>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Signal <span className="text-[#FF2D2D]">Relay</span></h1>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Targeted Push Transmissions & System Alerts</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-red-700 transition-all shadow-lg shadow-red-900/20">
-          <Plus size={18}/> Send Notification
+        <button onClick={() => setShowForm(true)} className="premium-button flex items-center gap-3">
+          <Plus size={20}/> Broadcast Signal
         </button>
       </div>
 
       {showForm && (
-        <div className="admin-card border-2 border-red-200 bg-red-50/30">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-black text-slate-900">New Notification</h3>
-            <button onClick={() => setShowForm(false)} className="p-1 text-slate-400 hover:text-slate-600"><X size={18}/></button>
+        <div className="admin-card border-[#FF2D2D]/30 bg-[#FF2D2D]/5 animate-in zoom-in-95 duration-300">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+                <h3 className="text-xl font-black text-white tracking-tight uppercase">New Transmission</h3>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Configure push notification payload</p>
+            </div>
+            <button onClick={() => setShowForm(false)} className="p-3 text-slate-500 hover:text-white hover:bg-black/20 rounded-2xl transition-all"><X size={20}/></button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="Notification title *" className="px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white md:col-span-2"/>
-            <textarea value={form.body} onChange={e => setForm({...form, body: e.target.value})} placeholder="Message *" rows={3} className="px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white md:col-span-2 resize-none"/>
-            <select value={form.type} onChange={e => setForm({...form, type: e.target.value})} className="px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white">
-              <option value="info">Info</option>
-              <option value="success">Success</option>
-              <option value="warning">Warning</option>
-              <option value="promo">Promo</option>
-            </select>
-            <input value={form.targetUserId} onChange={e => setForm({...form, targetUserId: e.target.value})} placeholder="Target User ID (blank = broadcast)" className="px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-white"/>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="md:col-span-2 space-y-2">
+                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Payload Title</label>
+                <input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="Alert title..." className="w-full px-6 py-4 bg-[#090909] border border-[#242424] text-white rounded-2xl text-sm font-bold focus:border-[#FF2D2D] outline-none shadow-inner" />
+            </div>
+            <div className="md:col-span-2 space-y-2">
+                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Message Body</label>
+                <textarea value={form.body} onChange={e => setForm({...form, body: e.target.value})} placeholder="Signal content..." rows={4} className="w-full px-6 py-4 bg-[#090909] border border-[#242424] text-white rounded-2xl text-sm font-bold focus:border-[#FF2D2D] outline-none resize-none shadow-inner" />
+            </div>
+            <div className="space-y-2">
+                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Signal Protocol</label>
+                <select value={form.type} onChange={e => setForm({...form, type: e.target.value})} className="w-full px-6 py-4 bg-[#090909] border border-[#242424] text-white rounded-2xl text-sm font-bold focus:border-[#FF2D2D] outline-none">
+                    <option value="info">Information</option>
+                    <option value="success">Success Node</option>
+                    <option value="warning">System Warning</option>
+                    <option value="promo">Promotional Yield</option>
+                </select>
+            </div>
+            <div className="space-y-2">
+                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Node ID (Optional)</label>
+                <input value={form.targetUserId} onChange={e => setForm({...form, targetUserId: e.target.value})} placeholder="Leave blank for Global Broadcast" className="w-full px-6 py-4 bg-[#090909] border border-[#242424] text-white rounded-2xl text-sm font-bold focus:border-[#FF2D2D] outline-none shadow-inner" />
+            </div>
           </div>
-          <div className="flex gap-3 mt-4">
-            <button onClick={handleSend} disabled={saving} className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-red-600 transition-all disabled:opacity-50">
-              <Send size={16}/> {saving ? "Sending..." : "Send Now"}
+
+          <div className="flex gap-4 mt-10">
+            <button onClick={handleSend} disabled={saving} className="flex-1 bg-white text-black py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#FF2D2D] hover:text-white transition-all shadow-xl flex items-center justify-center gap-3">
+              <Send size={16}/> {saving ? "Transmitting..." : "Initialize Relay"}
             </button>
-            <button onClick={() => setShowForm(false)} className="px-6 py-3 rounded-xl text-sm font-black text-slate-500 border border-slate-200 hover:bg-slate-50 transition-all">Cancel</button>
+            <button onClick={() => setShowForm(false)} className="px-10 py-4 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest border border-[#242424] hover:bg-white/5 transition-all">Abort</button>
           </div>
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {loading ? (
-          Array(5).fill(0).map((_, i) => <div key={i} className="h-24 bg-slate-100 rounded-2xl animate-pulse"/>)
+          Array(6).fill(0).map((_, i) => <div key={i} className="h-28 bg-[#121212] rounded-[24px] animate-pulse border border-[#242424]"/>)
         ) : items.length === 0 ? (
-          <div className="admin-card border-dashed border-2 py-20 flex flex-col items-center">
-            <Bell className="text-slate-300 mb-4" size={40}/>
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No notifications sent yet</p>
+          <div className="admin-card border-dashed border-2 border-[#242424] py-32 flex flex-col items-center bg-transparent">
+            <Bell className="text-slate-800 mb-6" size={64}/>
+            <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-[10px]">Registry Empty: No active transmissions found</p>
           </div>
         ) : items.map(item => (
-          <div key={item.id} className="admin-card group hover:border-slate-300 transition-all flex items-center gap-4">
-            <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", typeDot[item.type] || "bg-slate-400")}/>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                <p className="font-black text-slate-900 text-sm">{item.title}</p>
-                <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-black uppercase", typeColor[item.type] || "bg-slate-100 text-slate-600")}>{item.type}</span>
-                {item.targetUserId && <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">@{item.targetUserId.substring(0,8)}...</span>}
-                {!item.targetUserId && <span className="text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded-full font-bold">Broadcast</span>}
-              </div>
-              <p className="text-xs text-slate-500 truncate">{item.body}</p>
+          <div key={item.id} className="admin-card group hover:border-[#FF2D2D]/30 transition-all flex items-center gap-6 relative overflow-hidden">
+            <div className={cn("absolute left-0 top-0 bottom-0 w-1", typeDot[item.type] || "bg-slate-400")}/>
+            <div className="w-12 h-12 rounded-2xl bg-[#090909] border border-[#242424] flex items-center justify-center shrink-0 shadow-inner">
+                <Bell size={20} className={cn("transition-colors", item.read ? "text-slate-700" : "text-[#FF2D2D]")} />
             </div>
-            <button onClick={() => handleDelete(item.id)} className="p-2 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100 flex-shrink-0">
-              <Trash2 size={15}/>
-            </button>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+                <p className="font-black text-white text-base tracking-tight uppercase">{item.title}</p>
+                <span className={cn("px-2.5 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest border", typeColor[item.type] || "bg-slate-800 text-slate-500 border-slate-700")}>{item.type}</span>
+                {item.targetUserId ? (
+                    <span className="flex items-center gap-1.5 text-[8px] bg-[#090909] text-blue-400 px-2.5 py-0.5 rounded-full border border-blue-500/20 font-black uppercase tracking-widest">
+                        <Target size={10} /> Targeted Node
+                    </span>
+                ) : (
+                    <span className="flex items-center gap-1.5 text-[8px] bg-red-500/10 text-red-500 px-2.5 py-0.5 rounded-full border border-red-500/20 font-black uppercase tracking-widest">
+                        <Zap size={10} /> Global Relay
+                    </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 font-medium truncate max-w-3xl leading-relaxed">{item.body}</p>
+            </div>
+            <div className="flex items-center gap-6 shrink-0">
+                <span className="text-[9px] font-black text-slate-700 uppercase tracking-widest tabular-nums hidden md:block">
+                    {item.createdAt ? formatDate(item.createdAt.toDate()) : 'Genesis'}
+                </span>
+                <button onClick={() => handleDelete(item.id)} className="p-3 text-slate-700 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all opacity-0 group-hover:opacity-100 border border-transparent hover:border-red-500/20">
+                    <Trash2 size={16}/>
+                </button>
+            </div>
           </div>
         ))}
       </div>
     </div>
   );
 }
-

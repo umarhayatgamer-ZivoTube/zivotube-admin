@@ -1,6 +1,6 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { getFirestore, Firestore } from "firebase/firestore";
+import { getAuth, Auth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,14 +11,15 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-const hasConfig = typeof window !== 'undefined' || (process.env.NEXT_PUBLIC_FIREBASE_API_KEY && process.env.NEXT_PUBLIC_FIREBASE_API_KEY !== 'undefined');
+// Initialize Firebase only if API key is present to prevent build errors
+const app: FirebaseApp | undefined = firebaseConfig.apiKey
+    ? (getApps().length > 0 ? getApp() : initializeApp(firebaseConfig))
+    : undefined;
 
-const app = hasConfig 
-  ? (getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)) 
-  : null;
+export const db: Firestore = app ? getFirestore(app) : ({} as Firestore);
+export const auth: Auth = app ? getAuth(app) : ({} as Auth);
 
-export const db = app ? getFirestore(app) : null as any;
-export const auth = app ? getAuth(app) : null as any;
+export { app };
 
 export const getMessagingInstance = async () => {
     if (typeof window === 'undefined' || !app) return null;

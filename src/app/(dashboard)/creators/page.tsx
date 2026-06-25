@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy, where, updateDoc, doc } from "firebase/firestore";
-import { Star, Search, ShieldCheck, TrendingUp, Video, Coins, ArrowUpRight } from "lucide-react";
+import { Star, Search, ShieldCheck, TrendingUp, Video, Coins, ArrowUpRight, Award, Zap } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 
 export default function CreatorsPage() {
@@ -36,84 +36,102 @@ export default function CreatorsPage() {
   });
 
   const levelBadge = (level: number) => {
-    if (level >= 5) return "bg-red-100 text-red-700 border border-red-200";
-    if (level >= 3) return "bg-purple-100 text-purple-700 border border-purple-200";
-    if (level >= 2) return "bg-blue-100 text-blue-700 border border-blue-200";
-    return "bg-slate-100 text-slate-600";
+    if (level >= 5) return "bg-red-500/10 text-red-500 border-red-500/20";
+    if (level >= 3) return "bg-purple-500/10 text-purple-500 border-purple-500/20";
+    if (level >= 2) return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+    return "bg-slate-500/10 text-slate-500 border-slate-500/20";
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-24">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Creator Center</h1>
-          <p className="text-slate-500 text-sm font-medium mt-1">Manage and monitor content creators</p>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Creator <span className="text-[#FF2D2D]">Center</span></h1>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Verified Talent & Content Engine Management</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16}/>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search creators..." className="pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 w-64 transition-all"/>
-          </div>
+        <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#FF2D2D] transition-colors" size={18}/>
+            <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search creator database..."
+                className="pl-12 pr-6 py-4 bg-[#121212] border border-[#242424] text-white rounded-2xl text-sm font-bold outline-none focus:border-[#FF2D2D] w-80 transition-all shadow-2xl"
+            />
         </div>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-3 flex-wrap bg-[#121212] p-2 rounded-[24px] border border-[#242424] w-fit shadow-xl">
         {["all","1","2","3","4","5"].map(l => (
-          <button key={l} onClick={() => setActiveLevel(l)} className={cn("px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all", activeLevel === l ? "bg-slate-900 text-white" : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50")}>
-            {l === "all" ? "All Levels" : `Level ${l}`}
+          <button
+            key={l}
+            onClick={() => setActiveLevel(l)}
+            className={cn(
+                "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                activeLevel === l ? "bg-[#FF2D2D] text-white shadow-lg shadow-red-900/40" : "text-slate-500 hover:text-slate-300"
+            )}
+          >
+            {l === "all" ? "Mainnet" : `Level ${l}`}
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
         {loading ? (
-          Array(6).fill(0).map((_, i) => <div key={i} className="h-52 bg-slate-100 rounded-3xl animate-pulse"/>)
+          Array(6).fill(0).map((_, i) => <div key={i} className="h-64 bg-[#121212] rounded-[40px] animate-pulse border border-[#242424]"/>)
         ) : filtered.length === 0 ? (
-          <div className="col-span-3 admin-card border-dashed border-2 py-20 flex flex-col items-center">
-            <Star className="text-slate-300 mb-4" size={40}/>
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No creators found</p>
+          <div className="col-span-full admin-card border-dashed border-2 border-[#242424] py-40 flex flex-col items-center">
+            <Award className="text-slate-800 mb-6" size={80}/>
+            <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-xs">No creator signatures detected in this sector</p>
           </div>
         ) : filtered.map(creator => (
-          <div key={creator.id} className="admin-card group hover:border-slate-300 transition-all">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden flex-shrink-0">
+          <div key={creator.id} className="admin-card group hover:border-[#FF2D2D]/30 transition-all flex flex-col justify-between">
+            <div className="flex items-start gap-6">
+              <div className="w-16 h-16 rounded-[24px] bg-gradient-to-br from-[#090909] to-[#121212] border border-[#242424] overflow-hidden flex-shrink-0 shadow-inner group-hover:border-[#FF2D2D]/50 transition-colors">
                 {creator.profilePhotoUrl
-                  ? <img src={creator.profilePhotoUrl} alt="" className="w-full h-full object-cover"/>
-                  : <div className="w-full h-full flex items-center justify-center font-black text-slate-400 text-xl">{creator.username?.charAt(0)}</div>
+                  ? <img src={creator.profilePhotoUrl} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>
+                  : <div className="w-full h-full flex items-center justify-center font-black text-slate-700 text-2xl uppercase">{creator.username?.charAt(0)}</div>
                 }
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-black text-slate-900 truncate">@{creator.username}</span>
-                  {creator.isVerified && <ShieldCheck size={14} className="text-blue-500 fill-blue-100 flex-shrink-0"/>}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-black text-white text-lg tracking-tight truncate">@{creator.username}</span>
+                  {creator.isVerified && <ShieldCheck size={16} className="text-blue-500 fill-blue-500/10 flex-shrink-0"/>}
                 </div>
-                <p className="text-[11px] text-slate-400 truncate">{creator.email}</p>
-                <span className={cn("mt-1.5 inline-block px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider", levelBadge(creator.creatorLevel || 0))}>
-                  Level {creator.creatorLevel || 0}
-                </span>
+                <p className="text-[11px] text-slate-500 font-bold uppercase tracking-tight truncate">{creator.email}</p>
+                <div className={cn("mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border", levelBadge(creator.creatorLevel || 0))}>
+                  <Zap size={10} /> Tier {creator.creatorLevel || 0}
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100">
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1 text-slate-400 mb-0.5"><Video size={12}/></div>
-                <p className="text-sm font-black text-slate-800">{creator.totalVideos || 0}</p>
-                <p className="text-[9px] text-slate-400 uppercase font-bold">Videos</p>
+            <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-[#242424]">
+              <div className="text-center group/stat">
+                <div className="flex items-center justify-center gap-1 text-slate-600 mb-1 group-hover/stat:text-violet-500 transition-colors"><Video size={14}/></div>
+                <p className="text-lg font-black text-white tracking-tighter">{creator.totalVideos || 0}</p>
+                <p className="text-[9px] text-slate-600 uppercase font-black tracking-widest">Nodes</p>
               </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1 text-slate-400 mb-0.5"><Coins size={12}/></div>
-                <p className="text-sm font-black text-slate-800">{(creator.totalCoins || 0).toLocaleString()}</p>
-                <p className="text-[9px] text-slate-400 uppercase font-bold">Coins</p>
+              <div className="text-center group/stat border-x border-[#242424]">
+                <div className="flex items-center justify-center gap-1 text-slate-600 mb-1 group-hover/stat:text-amber-500 transition-colors"><Coins size={14}/></div>
+                <p className="text-lg font-black text-white tracking-tighter">{(creator.totalCoins || 0).toLocaleString()}</p>
+                <p className="text-[9px] text-slate-600 uppercase font-black tracking-widest">Yield</p>
               </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1 text-slate-400 mb-0.5"><TrendingUp size={12}/></div>
-                <p className="text-sm font-black text-slate-800">Rs.{(creator.totalEarnings || 0).toLocaleString()}</p>
-                <p className="text-[9px] text-slate-400 uppercase font-bold">Earned</p>
+              <div className="text-center group/stat">
+                <div className="flex items-center justify-center gap-1 text-slate-600 mb-1 group-hover/stat:text-[#FF2D2D] transition-colors"><TrendingUp size={14}/></div>
+                <p className="text-lg font-black text-white tracking-tighter">Rs.{(creator.totalEarnings || 0).toLocaleString()}</p>
+                <p className="text-[9px] text-slate-600 uppercase font-black tracking-widest">Revenue</p>
               </div>
             </div>
 
-            <button onClick={() => handleVerify(creator.id, creator.isVerified)} className={cn("w-full mt-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", creator.isVerified ? "bg-blue-50 text-blue-600 hover:bg-blue-100" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>
-              {creator.isVerified ? "✓ Verified" : "Mark as Verified"}
+            <button
+                onClick={() => handleVerify(creator.id, creator.isVerified)}
+                className={cn(
+                    "w-full mt-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300",
+                    creator.isVerified
+                        ? "bg-blue-500/5 text-blue-500 border border-blue-500/20 hover:bg-blue-500 hover:text-white"
+                        : "bg-[#090909] text-slate-500 border border-[#242424] hover:bg-white hover:text-black"
+                )}
+            >
+              {creator.isVerified ? "De-Authorize Node" : "Authorize Creator"}
             </button>
           </div>
         ))}
@@ -121,4 +139,3 @@ export default function CreatorsPage() {
     </div>
   );
 }
-
