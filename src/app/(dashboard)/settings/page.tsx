@@ -153,40 +153,7 @@ function SettingsContent() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4">
-        {/* Navigation Sidebar */}
-        <div className="w-full lg:w-56 shrink-0">
-            <div className="bg-[#121212] rounded-[24px] border border-[#242424] p-3 shadow-2xl sticky top-6">
-                <div className="relative mb-4 p-1">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={14} />
-                    <input
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search..."
-                        className="w-full pl-8 pr-3 py-2 bg-[#090909] border border-[#242424] rounded-xl text-[10px] font-bold text-white outline-none focus:border-[#FF2D2D] transition-all"
-                    />
-                </div>
-                <div className="space-y-0.5 max-h-[65vh] overflow-y-auto custom-scrollbar pr-1">
-                    {CATEGORIES.filter(c => c.label.toLowerCase().includes(searchQuery.toLowerCase())).map((cat) => (
-                        <button
-                            key={cat.id}
-                            onClick={() => setActiveCategory(cat.id)}
-                            className={cn(
-                                "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all group",
-                                activeCategory === cat.id
-                                    ? "bg-[#FF2D2D] text-white shadow-lg shadow-red-900/30"
-                                    : "text-slate-500 hover:bg-[#1A1A1A] hover:text-slate-300"
-                            )}
-                        >
-                            <cat.icon size={16} className={cn(activeCategory === cat.id ? "text-white" : "text-slate-600 group-hover:text-[#FF2D2D]")} />
-                            <span className="truncate">{cat.label}</span>
-                            {activeCategory === cat.id && <ChevronRight size={12} className="ml-auto opacity-50" />}
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </div>
-
+      <div className="flex flex-col gap-4">
         {/* Content Area */}
         <div className="flex-1 min-w-0">
             {/* Category: APP CONFIG */}
