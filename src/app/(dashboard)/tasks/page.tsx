@@ -205,9 +205,9 @@ export default function TasksPage() {
             <div className="flex items-start justify-between mb-6 relative z-10">
               <span className={cn(
                   "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border",
-                  taskTypeColors[task.taskType] || "bg-slate-500/10 text-slate-400 border-slate-500/20"
+                  taskTypeColors[task.taskType || ""] || "bg-slate-500/10 text-slate-400 border-slate-500/20"
               )}>
-                {task.taskType.replace('_', ' ')}
+                {(task.taskType || "unknown").replace('_', ' ')}
               </span>
               <div className="flex gap-2">
                 <button onClick={() => startEdit(task)} className="w-8 h-8 flex items-center justify-center bg-[#090909] border border-[#242424] text-slate-500 hover:text-blue-500 hover:border-blue-500/50 rounded-xl transition-all" title="Edit">

@@ -542,7 +542,7 @@ function SettingsContent() {
 function SectionHeader({ title, subtitle }: { title: string, subtitle: string }) {
     return (
         <div className="mb-6 p-4 bg-gradient-to-r from-red-500/5 to-transparent border-l-4 border-[#FF2D2D] rounded-r-xl">
-            <h2 className="text-sm font-black text-white uppercase tracking-tight">{title}</h2>
+            <h2 className="text-sm font-black text-[#FF2D2D] uppercase tracking-tight">{title}</h2>
             <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">{subtitle}</p>
         </div>
     );

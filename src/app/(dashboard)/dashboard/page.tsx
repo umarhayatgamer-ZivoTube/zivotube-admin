@@ -149,20 +149,34 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 transition-colors duration-300">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-4xl font-black text-white tracking-tighter uppercase">Command <span className="text-[#FF2D2D]">Center</span></h1>
-          <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">Platform Infrastructure • Real-time Monitoring</p>
+          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase transition-colors">Command <span className="text-[#FF2D2D]">Center</span></h1>
+          <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Network Online</span>
+              </div>
+              <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">• Real-time Monitoring</span>
+          </div>
         </div>
-        <button
-            onClick={seedSampleData}
-            disabled={initializing}
-            className="flex items-center gap-3 bg-[#1A1A1A] border border-[#242424] hover:border-[#FF2D2D]/50 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50"
-        >
-          {initializing ? <RefreshCw className="animate-spin" size={16}/> : <Zap className="text-[#FF2D2D]" size={16} />}
-          {initializing ? "Provisioning..." : "Seed Demo Data"}
-        </button>
+        <div className="flex items-center gap-3">
+            <button
+                onClick={fetchStats}
+                className="p-3 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#242424] rounded-2xl text-slate-500 hover:text-[#FF2D2D] transition-all shadow-sm"
+            >
+                <RefreshCw size={18} className={cn(initializing && "animate-spin")} />
+            </button>
+            <button
+                onClick={seedSampleData}
+                disabled={initializing}
+                className="flex items-center gap-3 bg-slate-100 dark:bg-[#1A1A1A] border border-slate-200 dark:border-[#242424] hover:border-[#FF2D2D]/50 text-slate-900 dark:text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50"
+            >
+              {initializing ? <RefreshCw className="animate-spin" size={16}/> : <Zap className="text-[#FF2D2D]" size={16} />}
+              {initializing ? "Provisioning..." : "Seed Demo Data"}
+            </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
@@ -178,10 +192,10 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 admin-card h-[450px] flex flex-col">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-800">Growth Analytics</h3>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white transition-colors">Growth Analytics</h3>
                     <p className="text-xs font-medium text-slate-400">User vs Video activity this week</p>
                 </div>
-                <select className="bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold p-2 outline-none">
+                <select className="bg-slate-100 dark:bg-[#090909] border border-slate-200 dark:border-[#242424] rounded-lg text-xs font-bold p-2 outline-none text-slate-900 dark:text-white">
                     <option>Last 7 Days</option>
                     <option>Last 30 Days</option>
                 </select>
@@ -195,11 +209,11 @@ export default function DashboardPage() {
                                 <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                             </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" className="dark:stroke-[#242424]" />
                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} dy={10} />
                         <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
                         <Tooltip
-                            contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
+                            contentStyle={{borderRadius: '12px', border: 'none', backgroundColor: 'var(--card)', color: 'var(--foreground)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
                         />
                         <Area type="monotone" dataKey="users" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
                         <Area type="monotone" dataKey="videos" stroke="#8b5cf6" strokeWidth={3} fillOpacity={0} />
@@ -209,7 +223,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="admin-card h-[450px] flex flex-col">
-            <h3 className="text-lg font-bold text-slate-800 mb-6">Recent Alerts</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white transition-colors mb-6">Recent Alerts</h3>
             <div className="flex-1 space-y-4 overflow-y-auto pr-2 custom-scrollbar">
                 <AlertItem type="report" title="Video Reported" desc="Inappropriate content in #VID-902" time="2m ago" />
                 <AlertItem type="withdrawal" title="Big Payout" desc="User @umar requested 5,000 PKR" time="15m ago" />
@@ -217,7 +231,7 @@ export default function DashboardPage() {
                 <AlertItem type="system" title="Server Load" desc="DB spike detected in 'videos' collection" time="3h ago" />
                 <AlertItem type="report" title="User Reported" desc="Spam behavior detected by @bot123" time="5h ago" />
             </div>
-            <button className="w-full mt-6 py-3 bg-slate-50 text-slate-600 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-slate-100 transition">View All Activity</button>
+            <button className="w-full mt-6 py-3 bg-slate-100 dark:bg-[#1A1A1A] text-slate-600 dark:text-slate-400 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-black transition-colors">View All Activity</button>
         </div>
       </div>
     </div>
@@ -236,7 +250,7 @@ function StatCard({ title, value, icon: Icon, color }: any) {
         </div>
         <div>
           <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.15em] mb-1.5">{title}</p>
-          <p className="text-2xl font-black text-white tracking-tight">{value}</p>
+          <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight transition-colors">{value}</p>
         </div>
       </div>
     </div>
@@ -245,18 +259,18 @@ function StatCard({ title, value, icon: Icon, color }: any) {
 
 function AlertItem({ type, title, desc, time }: any) {
     const getIconColor = () => {
-        if (type === 'report') return 'bg-orange-100 text-orange-600';
-        if (type === 'withdrawal') return 'bg-green-100 text-green-600';
-        if (type === 'creator') return 'bg-purple-100 text-purple-600';
-        return 'bg-blue-100 text-blue-600';
+        if (type === 'report') return 'bg-orange-500/10 text-orange-600';
+        if (type === 'withdrawal') return 'bg-green-500/10 text-green-600';
+        if (type === 'creator') return 'bg-purple-500/10 text-purple-600';
+        return 'bg-blue-500/10 text-blue-600';
     };
 
     return (
-        <div className="flex gap-4 items-start p-3 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-slate-100">
+        <div className="flex gap-4 items-start p-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-white/5">
             <div className={cn("w-2 h-2 mt-2 rounded-full", getIconColor().split(' ')[1].replace('text', 'bg'))}></div>
             <div className="flex-1">
                 <div className="flex justify-between items-center">
-                    <p className="text-sm font-bold text-slate-900">{title}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white transition-colors">{title}</p>
                     <span className="text-[10px] font-medium text-slate-400">{time}</span>
                 </div>
                 <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{desc}</p>

@@ -3,6 +3,29 @@
 @tailwind utilities;
 
 :root {
+  --background: #FFFFFF;
+  --foreground: #090909;
+  --card: #F8FAFC;
+  --card-foreground: #090909;
+  --popover: #FFFFFF;
+  --popover-foreground: #090909;
+  --primary: #FF2D2D;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FF5B5B;
+  --secondary-foreground: #FFFFFF;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #FF2D2D;
+  --accent-foreground: #FFFFFF;
+  --destructive: #FF2D2D;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #F1F5F9;
+  --ring: #FF2D2D;
+  --radius: 1.5rem;
+}
+
+.dark {
   --background: #090909;
   --foreground: #FFFFFF;
   --card: #121212;
@@ -22,17 +45,16 @@
   --border: #242424;
   --input: #1A1A1A;
   --ring: #FF2D2D;
-  --radius: 1.5rem;
 }
 
 body {
-  @apply bg-[#090909] text-white selection:bg-[#FF2D2D]/30;
+  @apply bg-white dark:bg-[#090909] text-slate-900 dark:text-white selection:bg-[#FF2D2D]/30;
   font-feature-settings: "cv11", "ss01";
 }
 
 @layer components {
   .admin-card {
-    @apply bg-[#121212] rounded-[24px] border border-[#242424] p-6 shadow-xl shadow-black/50 transition-all duration-300;
+    @apply bg-slate-50 dark:bg-[#121212] rounded-[24px] border border-slate-200 dark:border-[#242424] p-6 shadow-sm dark:shadow-xl dark:shadow-black/50 transition-all duration-300;
   }
 
   .premium-gradient {
@@ -53,10 +75,10 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090909;
+  @apply bg-slate-100 dark:bg-[#090909];
 }
 ::-webkit-scrollbar-thumb {
-  background: #242424;
+  @apply bg-slate-300 dark:bg-[#242424];
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {

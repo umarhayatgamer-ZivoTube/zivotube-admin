@@ -25,6 +25,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!auth || !db) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
       setUser(firebaseUser);
@@ -38,7 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setIsAdmin(true);
           } else if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
-            setIsAdmin(userData.role === 'admin');
+            // Match Android logic: userLevel == 'Admin'
+            setIsAdmin(userData.userLevel === 'Admin' || userData.role === 'admin');
           } else {
             setIsAdmin(false);
           }

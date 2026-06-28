@@ -16,6 +16,10 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleGoogleLogin = async () => {
+    if (!auth || !db) {
+      setError("Firebase not initialized. Check your environment variables.");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -23,7 +27,7 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, provider);
       const userDoc = await getDoc(doc(db, "users", result.user.uid));
 
-      if (userDoc.exists() && userDoc.data().role === 'admin') {
+      if (result.user.uid === 'hyPcVktiQnaOK723dHajrpbq30r1' || (userDoc.exists() && (userDoc.data().userLevel === 'Admin' || userDoc.data().role === 'admin'))) {
         router.push("/dashboard");
       } else {
         await auth.signOut();
@@ -38,6 +42,10 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth || !db) {
+      setError("Firebase not initialized. Check your environment variables.");
+      return;
+    }
     setLoading(true);
     setError("");
 
@@ -45,7 +53,7 @@ export default function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
 
-      if (userDoc.exists() && userDoc.data().role === 'admin') {
+      if (userCredential.user.uid === 'hyPcVktiQnaOK723dHajrpbq30r1' || (userDoc.exists() && (userDoc.data().userLevel === 'Admin' || userDoc.data().role === 'admin'))) {
         router.push("/dashboard");
       } else {
         await auth.signOut();
@@ -59,12 +67,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090909] flex items-center justify-center p-6 selection:bg-[#FF2D2D]/30">
+    <div className="min-h-screen bg-white dark:bg-[#090909] flex items-center justify-center p-6 selection:bg-[#FF2D2D]/30 transition-colors duration-300">
       <div className="w-full max-w-[440px]">
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-10 text-center">
             <div className="w-16 h-16 bg-[#FF2D2D] rounded-[22px] flex items-center justify-center text-white font-black text-3xl shadow-2xl shadow-red-900/50 mb-6">Z</div>
-            <h1 className="text-3xl font-black text-white tracking-tight uppercase">Welcome <span className="text-[#FF2D2D]">Back</span></h1>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight uppercase transition-colors">Welcome <span className="text-[#FF2D2D]">Back</span></h1>
             <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Admin Control Terminal</p>
         </div>
 
@@ -75,32 +83,32 @@ export default function LoginPage() {
                 <button
                   onClick={handleGoogleLogin}
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border border-[#242424] disabled:opacity-50 shadow-xl"
+                  className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-black text-black dark:text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border border-slate-200 dark:border-[#242424] disabled:opacity-50 shadow-xl"
                 >
                     <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="" />
                     Continue with Google
                 </button>
-                <button className="w-full flex items-center justify-center gap-3 bg-[#090909] hover:bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border border-[#242424]">
+                <button className="w-full flex items-center justify-center gap-3 bg-slate-100 dark:bg-[#090909] hover:bg-slate-200 dark:hover:bg-black text-slate-900 dark:text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border border-slate-200 dark:border-[#242424]">
                     <ShieldCheck size={18} className="text-[#FF2D2D]" />
                     Identity Key Login
                 </button>
             </div>
 
             <div className="flex items-center gap-4 mb-8">
-                <div className="h-px bg-[#242424] flex-1"></div>
-                <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">or transmission channel</span>
-                <div className="h-px bg-[#242424] flex-1"></div>
+                <div className="h-px bg-slate-200 dark:bg-[#242424] flex-1"></div>
+                <span className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest">or transmission channel</span>
+                <div className="h-px bg-slate-200 dark:bg-[#242424] flex-1"></div>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
                 <div className="space-y-2">
                     <div className="relative group">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#FF2D2D] transition-colors" size={18} />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 group-focus-within:text-[#FF2D2D] transition-colors" size={18} />
                         <input
                             required
                             type="email"
                             placeholder="Email Address"
-                            className="w-full bg-[#090909] border border-[#242424] text-white pl-12 pr-4 py-4 rounded-2xl outline-none focus:border-[#FF2D2D] transition-all font-bold text-sm placeholder:text-slate-800 shadow-inner"
+                            className="w-full bg-slate-50 dark:bg-[#090909] border border-slate-200 dark:border-[#242424] text-slate-900 dark:text-white pl-12 pr-4 py-4 rounded-2xl outline-none focus:border-[#FF2D2D] transition-all font-bold text-sm placeholder:text-slate-300 dark:placeholder:text-slate-800 shadow-inner"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
@@ -109,12 +117,12 @@ export default function LoginPage() {
 
                 <div className="space-y-2">
                     <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[#FF2D2D] transition-colors" size={18} />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 group-focus-within:text-[#FF2D2D] transition-colors" size={18} />
                         <input
                             required
                             type="password"
                             placeholder="Encryption Password"
-                            className="w-full bg-[#090909] border border-[#242424] text-white pl-12 pr-4 py-4 rounded-2xl outline-none focus:border-[#FF2D2D] transition-all font-bold text-sm placeholder:text-slate-800 shadow-inner"
+                            className="w-full bg-slate-50 dark:bg-[#090909] border border-slate-200 dark:border-[#242424] text-slate-900 dark:text-white pl-12 pr-4 py-4 rounded-2xl outline-none focus:border-[#FF2D2D] transition-all font-bold text-sm placeholder:text-slate-300 dark:placeholder:text-slate-800 shadow-inner"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
